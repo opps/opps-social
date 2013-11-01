@@ -14,7 +14,7 @@ class Liked(NotUserPublishable):
 
 
 class Favorited(Publishable):
-    container = models.OneToOneField('containers.Container',
-                                     primary_key=True)
+    container = models.ForeignKey('containers.Container')
 
-
+    class Meta:
+        unique_together = ("site", "user", "container")
