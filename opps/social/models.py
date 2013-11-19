@@ -2,19 +2,25 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 
-from opps.core.models import NotUserPublishable, Publishable
+from opps.core.models import OwnedNotRequired, Owned
 
 from .managers import LikedManager
 
 
-class Liked(NotUserPublishable):
-    container = models.ForeignKey('containers.Container')
-    point = models.IntegerField()
+class Liked(OwnedNotRequired):
+    path = models.CharField(max_length=255, db_index=True)
+    point = models.IntegerField(db_index=True)
     objects = LikedManager()
 
+    def __unicode__(self):
+        return self.path
 
-class Favorited(Publishable):
-    container = models.ForeignKey('containers.Container')
+
+class Favorited(Owned):
+    path = models.CharField(max_length=255, db_index=True)
+
+    def __unicode__(self):
+        return self.path
 
     class Meta:
-        unique_together = ("site", "user", "container")
+        unique_together = ("user", "path")
