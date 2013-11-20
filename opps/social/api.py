@@ -7,10 +7,11 @@ from tastypie.resources import ModelResource
 from opps.api import MetaBase, ApiAuthentication
 
 from .models import Liked as LikedModel
+from .models import Favorited as FavoritedModel
 
 
 class Liked(ModelResource):
-    class Meta(MetaBase):
+    class Meta:
         allowed_methods = ['get', 'post']
         filtering = {
             'path': ALL,
@@ -31,3 +32,15 @@ class Liked(ModelResource):
         bundle.data['total'] = LikedModel.objects.get_total(
             bundle.data['path'])
         return bundle
+
+
+class Favorited(ModelResource):
+    class Meta:
+        allowed_methods = ['get', 'post']
+        filtering = {
+            'path': ALL,
+            'user': ALL,
+        }
+        queryset = FavoritedModel.objects.all()
+        include_resource_uri = False
+        authentication = ApiAuthentication()
