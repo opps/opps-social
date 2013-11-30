@@ -43,4 +43,4 @@ class Favorited(ModelResource):
         }
         queryset = FavoritedModel.objects.all()
         include_resource_uri = False
-        authentication = ApiAuthentication()
+        authentication = ApiAuthentication(['post'])
