@@ -15,6 +15,7 @@ favorited_resource = Resource(handler=FavoritedHandler, authentication=auth)
 
 urlpatterns = patterns(
     '',
-    url(r'^api/social/liked/$', liked_resource),
-    url(r'^api/social/favorited/$', favorited_resource),
+    url(r'^api/social/liked/$', liked_resource, {'emitter_format': 'json'}),
+    url(r'^api/social/favorited/$', favorited_resource,
+        {'emitter_format': 'json'}),
 )
