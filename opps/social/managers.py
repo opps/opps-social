@@ -2,14 +2,24 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 
 class LikedManager(models.Manager):
 
-    def _action(self, path, point):
+    def _action(self, path, user, point):
+        if user:
+            try:
+                user = User.objects.get(username=user)
+            except:
+                user = None
         return super(LikedManager, self).create(
             path=path,
-            point=point
+            point=point,
+            user=user
         )
 
     def _get(self, path, operator):
@@ -25,15 +35,15 @@ class LikedManager(models.Manager):
     def get_like(self, path):
         return self._get(path, "gt")
 
-    def like(self, path, point=1):
+    def like(self, path, user=None, point=1):
         if point <= 0:
             raise _(u"Point must be positive.")
-        return self._action(path, point)
+        return self._action(path, user, point)
 
-    def dislike(self, path, point=-1):
+    def dislike(self, path, user=None, point=-1):
         if point >= 0:
             raise _(u"Point must be negative.")
-        return self._action(path, point)
+        return self._action(path, user, point)
 
     def get_dislike(self, path):
         ret = self._get(path, "lt")
