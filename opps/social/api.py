@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.db.models import Sum
-from opps.api import BaseHandler
+from django.contrib.auth import get_user_model
 
+from opps.api import BaseHandler
 
 from .models import Liked, Favorited
 
@@ -45,3 +46,15 @@ class LikedHandler(Handler):
 class FavoritedHandler(Handler):
     allowed_methods = ['GET', 'POST']
     model = Favorited
+
+    def create(self, request):
+        User = get_user_model()
+        method = getattr(request, request.method)
+        base = self.model.objects
+        user = User.objects.get(username=method.get('api_username'))
+        if method.get('unfavorited'):
+            query = base.get(path=method.get('path'), user=user)
+            query.delete()
+        else:
+            query = base.get_or_create(path=method.get('path'), user=user)
+        return query
