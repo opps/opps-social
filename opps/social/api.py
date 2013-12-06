@@ -1,46 +1,47 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from django.db.models import Count
-from tastypie.constants import ALL
-from tastypie.resources import ModelResource
-
-from opps.api import MetaBase, ApiAuthentication
-
-from .models import Liked as LikedModel
-from .models import Favorited as FavoritedModel
+from django.db.models import Sum
+from opps.api import BaseHandler
 
 
-class Liked(ModelResource):
-    class Meta:
-        allowed_methods = ['get', 'post']
-        filtering = {
-            'path': ALL,
-            'user': ALL,
-        }
-        queryset = LikedModel.objects.all()
-        include_resource_uri = False
-        excludes = ['point', 'id']
-        authentication = ApiAuthentication(['post'])
-
-    #def get_object_list(self, request):
-    #    return super(Liked, self).get_object_list(request).values('path').annotate(p=Count('path'))
-
-    def dehydrate(self, bundle):
-        bundle.data['like'] = LikedModel.objects.get_like(bundle.data['path'])
-        bundle.data['dislike'] = LikedModel.objects.get_dislike(
-            bundle.data['path'])
-        bundle.data['total'] = LikedModel.objects.get_total(
-            bundle.data['path'])
-        return bundle
+from .models import Liked, Favorited
 
 
-class Favorited(ModelResource):
-    class Meta:
-        allowed_methods = ['get', 'post']
-        filtering = {
-            'path': ALL,
-            'user': ALL,
-        }
-        queryset = FavoritedModel.objects.all()
-        include_resource_uri = False
-        authentication = ApiAuthentication(['post'])
+class Handler(BaseHandler):
+    allowed_methods = ['GET', 'POST']
+
+
+class LikedHandler(Handler):
+    model = Liked
+    excludes = ['point', 'id']
+
+    def read(self, request):
+        base = self.model.objects
+        if request.GET.items():
+            method = getattr(request, request.method)
+            query = base.filter(**request.GET.dict())
+            if query.count == 0:
+                return {}
+            return {'path': query[0].path,
+                    'total': query.aggregate(point=Sum('point'))['point'],
+                    'like': base.get_like(method.get('path')),
+                    'dislike': base.get_dislike(method.get('path'))}
+        return base.all()
+
+    def create(self, request):
+        method = getattr(request, request.method)
+        base = self.model.objects
+        user = None
+        if method.get('username'):
+            user = method.get('username')
+
+        if method.get('action') == 'dislike':
+            r = base.dislike(method.get('path'), user)
+        else:
+            r = base.like(method.get('path'), user)
+        return r
+
+
+class FavoritedHandler(Handler):
+    allowed_methods = ['GET', 'POST']
+    model = Favorited
