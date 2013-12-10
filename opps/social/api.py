@@ -21,7 +21,7 @@ class LikedHandler(Handler):
         if request.GET.items():
             method = getattr(request, request.method)
             query = base.filter(**request.GET.dict())
-            if query.count == 0:
+            if query.count() == 0:
                 return {}
             return {'path': query[0].path,
                     'total': query.aggregate(point=Sum('point'))['point'],
