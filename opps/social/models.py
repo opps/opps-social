@@ -13,14 +13,14 @@ class Liked(OwnedNotRequired):
     objects = LikedManager()
 
     def __unicode__(self):
-        return self.path
+        return u"{} - {}".format(self.id, self.path)
 
 
 class Favorited(Owned):
     path = models.CharField(max_length=255, db_index=True)
 
     def __unicode__(self):
-        return self.path
+        return u"{} - {}".format(self.id, self.path)
 
     class Meta:
         unique_together = ("user", "path")
