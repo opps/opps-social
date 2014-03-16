@@ -47,6 +47,11 @@ class LikedHandler(Handler):
 class FavoritedHandler(Handler):
     allowed_methods = ['GET', 'POST']
     model = Favorited
+    
+    def read(self, request):
+        if not request.GET.items():
+            return {}
+        return super(FavoritedHandler, self).read(request)
 
     def create(self, request):
         User = get_user_model()
