@@ -49,9 +49,14 @@ class FavoritedHandler(Handler):
     model = Favorited
     
     def read(self, request):
-        if not request.GET.items():
+        if not request.user.is_authenticated()
             return {}
-        return super(FavoritedHandler, self).read(request)
+
+        data = self.model.filter(user=request.user)
+        path = request.GET.get('path')
+        if path:
+            data = data.filter(path=path)
+        return data
 
     def create(self, request):
         User = get_user_model()
