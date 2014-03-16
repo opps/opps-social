@@ -27,7 +27,8 @@ class LikedHandler(Handler):
                     'total': query.aggregate(point=Sum('point'))['point'],
                     'like': base.get_like(method.get('path')),
                     'dislike': base.get_dislike(method.get('path'))}
-        return base.all()
+        return {}
+        # return base.all()
 
     def create(self, request):
         method = getattr(request, request.method)
