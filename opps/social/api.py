@@ -52,7 +52,7 @@ class FavoritedHandler(Handler):
         if not request.user.is_authenticated():
             return {}
 
-        data = self.model.filter(user=request.user)
+        data = self.model.objects.filter(user=request.user)
         path = request.GET.get('path')
         if path:
             data = data.filter(path=path)
