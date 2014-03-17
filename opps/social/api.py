@@ -49,7 +49,7 @@ class FavoritedHandler(Handler):
     model = Favorited
     
     def read(self, request):
-        if not request.user.is_authenticated()
+        if not request.user.is_authenticated():
             return {}
 
         data = self.model.filter(user=request.user)
